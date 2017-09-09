@@ -5,41 +5,59 @@ const Status = {
 };
 
 /**
+ * @private
+ * @function
+ */
+function fulfill(result) {
+  this.state = Status.FULFILLED;
+  this.value = result;
+}
+
+/**
+ * @private
+ * @function
+ */
+function reject(error) {
+  this.state = Status.REJECT;
+  this.value = error;
+}
+
+/**
+ * @private
+ * @function
+ */
+function resolve(result) {
+  try {
+    const then = Promise.getThen(result);
+    if (then) {
+      doResolve(then.bind(result), resolve, reject);
+    }
+
+    fulfill(result);
+  } catch (err) {
+    reject(err);
+  }
+}
+
+/**
+ * @private
+ * @function
+ */
+function getThen(value) {
+}
+
+/**
  * `Promise`的`es6`实现版本
+ *
  * @see https://www.promisejs.org/
+ * @public
  * @class
  */
 class Promise {
-  constructor() {
+  constructor(fn) {
     this.state = Status.PENDING;
     this.value = null;
     this.handlers = [];
-  }
-
-  /**
-   * @static
-   */
-  static fulfill(result) {
-    this.state = Status.FULFILLED;
-    this.value = result;
-  }
-
-  /**
-   * @static
-   */
-  static reject(error) {
-    this.state = Status.REJECT;
-    this.value = error;
-  }
-
-  /**
-   * @static
-   */
-  static resolve(result) {
-    try {
-    } catch (e) {
-
-    }
   }
 }
 
