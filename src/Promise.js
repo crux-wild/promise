@@ -129,7 +129,7 @@ class Promise {
   }
 
   static resolve(value) {
-    resolve(value);
+    // @TODO
   }
 
   static all() {
