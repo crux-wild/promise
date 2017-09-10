@@ -169,16 +169,13 @@ class Promise {
     return new Promise((resolve, reject) => {
       const promiseArray = [...iterable];
       const allResult = { result: [], length: 0 };
-
       promiseArray.forEach((promise, index) => {
         promise.then(
           (value) => {
-            const { result, length } = allResult;
-            allResult.length = length + 1;
-            result[index] = value;
-
+            allResult.length = allResult.length + 1;
+            allResult.result[index] = value;
             if (allResult.length === promiseArray.length) {
-              resolve(result);
+              resolve(allResult.result);
             }
           },
           (reason) => {
