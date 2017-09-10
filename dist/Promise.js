@@ -20,13 +20,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @readonly
  * @enum {number}
  */
-var Status = {
+var Status = Object.freeze({
   PENDING: 0,
   FULFILLED: 1,
   REJECT: 2
-};
+});
 
 /**
+ * `Promise`状态对应标志
  * @private
  * @readonly
  * @const
@@ -34,6 +35,7 @@ var Status = {
 var STATE = Symbol('state');
 
 /**
+ * 扭转`Promise`的状态到完成
  * @private
  * @param {Any} result
  */
@@ -45,6 +47,7 @@ function fulfill(result) {
 }
 
 /**
+ * 扭转`Promise`的状态到完成
  * @private
  * @param {Error} error
  */
@@ -56,6 +59,7 @@ function reject(error) {
 }
 
 /**
+ * 扭转`Promise`状态状态到拒绝
  * @private
  * @param {Any|Promise} result
  */
@@ -73,6 +77,7 @@ function _resolve(result) {
 }
 
 /**
+ * 获取值的`then`方法
  * @private
  * @param {Any|Promise} value
  * @return {Function|Null}
@@ -89,6 +94,7 @@ function getThen(value) {
 }
 
 /**
+ * 确保`Promise`状态只扭转一次
  * @private
  * @param {Function} fn
  * @param {Function} onFulfilled
@@ -116,6 +122,7 @@ function doResolve(fn, onFulfilled, onRejected) {
 }
 
 /**
+ * 根据`Promise`状态操作其对应值
  * @private
  * @param {Handler} handler
  */
@@ -135,6 +142,7 @@ function handle(handler) {
 }
 
 /**
+ * 确保对`Promise`的值的操作是异步完成的
  * @private
  * @param {Function} onFulfilled
  * @param {Function} onRejected
@@ -147,6 +155,7 @@ function done(onFulfilled, onRejected) {
 }
 
 /**
+ * 对`Promise`的值操作类
  * @private
  * @class
  */
@@ -178,20 +187,25 @@ var Promise = function () {
 
     _classCallCheck(this, Promise);
 
+    var state = Object.seal({
+      state: Status.PENDING,
+      done: false,
+      value: null,
+      handlers: []
+    });
+
     for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
 
     Object.defineProperties(this, (_Object$definePropert = {}, _defineProperty(_Object$definePropert, STATE, {
-      value: {
-        state: Status.PENDING,
-        done: false,
-        value: null,
-        handlers: []
-      },
+      value: state,
+      configurable: false,
+      enumerable: false,
       writable: false
     }), _defineProperty(_Object$definePropert, 'length', {
       value: args.length,
+      configurable: false,
       writable: false
     }), _Object$definePropert));
 
@@ -201,6 +215,7 @@ var Promise = function () {
   }
 
   /**
+   * 获取一组`Promise`全部到达时的`Promise`实例
    * @static
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all
    */
@@ -211,6 +226,7 @@ var Promise = function () {
 
 
     /**
+     * 绑定完成或者失败操作
      * @public
      * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then
      */
@@ -241,6 +257,7 @@ var Promise = function () {
     }
 
     /**
+     * 绑定拒绝处理操作
      * @public
      * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/catch
      */
@@ -252,6 +269,7 @@ var Promise = function () {
     }
 
     /**
+     * 序列化`Promise`实例
      * @public
      */
 
@@ -284,9 +302,10 @@ var Promise = function () {
     key: 'all',
     value: function all(iterable) {
       return new Promise(function (resolve, reject) {
-        var promiseArray = [].concat(_toConsumableArray(iterable));
+        var valueArray = [].concat(_toConsumableArray(iterable));
         var allResult = { result: [], length: 0 };
-        promiseArray.forEach(function (promise, index) {
+        valueArray.forEach(function (value, index) {
+          var promise = resolve(value);
           promise.then(function (value) {
             allResult.length = allResult.length + 1;
             allResult.result[index] = value;
@@ -301,6 +320,7 @@ var Promise = function () {
     }
 
     /**
+     * 获取一组`Promise`实例最先完成`Promise`数值
      * @static
      * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/race
      */
@@ -341,6 +361,7 @@ var Promise = function () {
     }
 
     /**
+     * 获取对应值的完成`Promise`实例
      * @static
      * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/resolve
      */
@@ -352,6 +373,7 @@ var Promise = function () {
     }
 
     /**
+     * 获取对应原因的失败`Promise`实例
      * @static
      * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/reject
      */

@@ -199,9 +199,10 @@ class Promise {
    */
   static all(iterable) {
     return new Promise((resolve, reject) => {
-      const promiseArray = [...iterable];
+      const valueArray = [...iterable];
       const allResult = { result: [], length: 0 };
-      promiseArray.forEach((promise, index) => {
+      valueArray.forEach((value, index) => {
+        const promise = resolve(value);
         promise.then(
           (value) => {
             allResult.length = allResult.length + 1;
