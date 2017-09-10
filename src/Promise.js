@@ -74,14 +74,14 @@ function doResolve(fn, onFulfilled, onRejected) {
   try {
     fn(
       (value) => {
-      if (done) return;
-      this.done = true;
-      onFulfilled(value);
+        if (done) return;
+        this.done = true;
+        onFulfilled(value);
       },
       (reason) => {
-      if (done) return;
-      this.done = true;
-      onRejected(reason);
+        if (done) return;
+        this.done = true;
+        onRejected(reason);
       }
     );
   } catch (err) {
