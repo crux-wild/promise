@@ -151,6 +151,7 @@ class Promise {
    * @constructor
    */
   constructor(fn) {
+    // @FIXME 隐藏状态机内部状态
     this.state = Status.PENDING;
     this.done = false;
     this.value = null;
