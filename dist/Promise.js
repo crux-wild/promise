@@ -13,26 +13,14 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
- * `Promise`状态机状态枚举类
- * @private
- * @readonly
- * @enum {number}
- */
-var Status = {
-  PENDING: 0,
-  FULFILLED: 1,
-  REJECT: 2
-};
-
-/**
  * @private
  * @param {Any} result
  */
 function fulfill(result) {
-  this.state = Status.FULFILLED;
-  this.value = result;
-  this.handlers.forEach(handle);
-  this.handlers = null;
+  this[STATE].state = Status.FULFILLED;
+  this[STATE].value = result;
+  this[STATE].handlers.forEach(handle);
+  this[STATE].handlers = null;
 }
 
 /**
@@ -40,10 +28,10 @@ function fulfill(result) {
  * @param {Error} error
  */
 function reject(error) {
-  this.state = Status.REJECT;
-  this.value = error;
-  this.handlers.forEach(handle);
-  this.handlers = null;
+  this[STATE].state = Status.REJECT;
+  this[STATE].value = error;
+  this[STATE].handlers.forEach(handle);
+  this[STATE].handlers = null;
 }
 
 /**
@@ -88,20 +76,20 @@ function getThen(value) {
 function doResolve(fn, onFulfilled, onRejected) {
   var _this = this;
 
-  if (this.done === false) return;
+  if (this[STATE].done === false) return;
   try {
     fn(function (value) {
       if (done) return;
-      _this.done = true;
+      _this[STATE].done = true;
       onFulfilled(value);
     }, function (reason) {
       if (done) return;
-      _this.done = true;
+      _this[STATE].done = true;
       onRejected(reason);
     });
   } catch (err) {
     if (done) return;
-    this.done = true;
+    this[STATE].done = true;
     onRejected(err);
   }
 }
@@ -111,14 +99,14 @@ function doResolve(fn, onFulfilled, onRejected) {
  * @param {Handler} handler
  */
 function handle(handler) {
-  if (this.state === State.PENDING) {
-    this.handlers.push(handler);
+  if (this[STATE].state === State.PENDING) {
+    this[STATE].handlers.push(handler);
   } else {
-    if (this.state === State.FULFILLED && typeof handler.onFulfilled === 'function') {
+    if (this[STATE].state === State.FULFILLED && typeof handler.onFulfilled === 'function') {
 
       handler.onFulfilled(value);
     }
-    if (this.state === State.REJECTED && typeof handler.onReject === 'function') {
+    if (this[STATE].state === State.REJECTED && typeof handler.onReject === 'function') {
 
       handler.onFulfilled(value);
     }
@@ -150,6 +138,27 @@ var Handler = function Handler(onFulfilled, onRejected) {
 };
 
 /**
+ * `Promise`状态机状态枚举类
+ * @private
+ * @readonly
+ * @enum {number}
+ */
+
+
+var Status = {
+  PENDING: 0,
+  FULFILLED: 1,
+  REJECT: 2
+};
+
+/**
+ * @private
+ * @readonly
+ * @const
+ */
+var STATE = Symbol('state');
+
+/**
  * `Promise`的`es6`实现版本
  *
  * @see https://www.promisejs.org/
@@ -159,7 +168,6 @@ var Handler = function Handler(onFulfilled, onRejected) {
  * @class
  */
 
-
 var Promise = function () {
   /**
    * @constructor
@@ -167,11 +175,16 @@ var Promise = function () {
   function Promise() {
     _classCallCheck(this, Promise);
 
-    // @FIXME 隐藏状态机内部状态
-    this.state = Status.PENDING;
-    this.done = false;
-    this.value = null;
-    this.handlers = [];
+    this[STATE] = {
+      state: Status.PENDING,
+      done: false,
+      value: null,
+      handlers: []
+    };
+
+    /**
+     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise#Properties
+     */
 
     for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
@@ -243,21 +256,23 @@ var Promise = function () {
     key: 'toString',
     value: function toString() {
       if (state === State.PENDING) {
-        var _state = this.state;
+        var _state = this[STATE].state;
 
         return 'Promise { <state>: "' + _state + '" }';
       }
 
       if (state === State.FULFILLED) {
-        var _state2 = this.state,
-            _value = this.value;
+        var _STATE = this[STATE],
+            _state2 = _STATE.state,
+            _value = _STATE.value;
 
         return 'Promise { <state>: "' + _state2 + '", <value>: ' + _value + ' }';
       }
 
       if (state === State.REJECTED) {
-        var _state3 = this.state,
-            reason = this.value;
+        var _STATE2 = this[STATE],
+            _state3 = _STATE2.state,
+            reason = _STATE2.value;
 
         return 'Promise { <state>: "' + _state3 + '", <reason>: ' + reason + ' }';
       }

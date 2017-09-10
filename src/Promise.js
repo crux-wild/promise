@@ -1,24 +1,12 @@
 /**
- * `Promise`状态机状态枚举类
- * @private
- * @readonly
- * @enum {number}
- */
-const Status = {
-  PENDING: 0,
-  FULFILLED: 1,
-  REJECT: 2,
-};
-
-/**
  * @private
  * @param {Any} result
  */
 function fulfill(result) {
-  this.state = Status.FULFILLED;
-  this.value = result;
-  this.handlers.forEach(handle);
-  this.handlers = null;
+  this[STATE].state = Status.FULFILLED;
+  this[STATE].value = result;
+  this[STATE].handlers.forEach(handle);
+  this[STATE].handlers = null;
 }
 
 /**
@@ -26,10 +14,10 @@ function fulfill(result) {
  * @param {Error} error
  */
 function reject(error) {
-  this.state = Status.REJECT;
-  this.value = error;
-  this.handlers.forEach(handle);
-  this.handlers = null;
+  this[STATE].state = Status.REJECT;
+  this[STATE].value = error;
+  this[STATE].handlers.forEach(handle);
+  this[STATE].handlers = null;
 }
 
 /**
@@ -72,23 +60,23 @@ function getThen(value) {
  * @param {Function} onRejected
  */
 function doResolve(fn, onFulfilled, onRejected) {
-  if (this.done === false) return;
+  if (this[STATE].done === false) return;
   try {
     fn(
       (value) => {
         if (done) return;
-        this.done = true;
+        this[STATE].done = true;
         onFulfilled(value);
       },
       (reason) => {
         if (done) return;
-        this.done = true;
+        this[STATE].done = true;
         onRejected(reason);
       }
     );
   } catch (err) {
     if (done) return;
-    this.done = true;
+    this[STATE].done = true;
     onRejected(err);
   }
 }
@@ -98,15 +86,15 @@ function doResolve(fn, onFulfilled, onRejected) {
  * @param {Handler} handler
  */
 function handle(handler) {
-  if (this.state === State.PENDING) {
-    this.handlers.push(handler);
+  if (this[STATE].state === State.PENDING) {
+    this[STATE].handlers.push(handler);
   } else {
-    if (this.state === State.FULFILLED &&
+    if (this[STATE].state === State.FULFILLED &&
       typeof handler.onFulfilled === 'function') {
 
       handler.onFulfilled(value);
     }
-    if (this.state === State.REJECTED &&
+    if (this[STATE].state === State.REJECTED &&
       typeof handler.onReject === 'function') {
 
       handler.onFulfilled(value);
@@ -137,6 +125,26 @@ class Handler {
   }
 }
 
+
+/**
+ * `Promise`状态机状态枚举类
+ * @private
+ * @readonly
+ * @enum {number}
+ */
+const Status = {
+  PENDING: 0,
+  FULFILLED: 1,
+  REJECT: 2,
+};
+
+/**
+ * @private
+ * @readonly
+ * @const
+ */
+const STATE = Symbol('state');
+
 /**
  * `Promise`的`es6`实现版本
  *
@@ -151,11 +159,12 @@ class Promise {
    * @constructor
    */
   constructor(...args) {
-    // @FIXME 隐藏状态机内部状态
-    this.state = Status.PENDING;
-    this.done = false;
-    this.value = null;
-    this.handlers = [];
+    this[STATE] = {
+      state: Status.PENDING,
+      done: false,
+      value: null,
+      handlers: [],
+    };
 
     /**
      * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise#Properties
@@ -274,17 +283,17 @@ class Promise {
    */
   toString() {
     if (state === State.PENDING) {
-      const { state } = this;
+      const { state } = this[STATE];
       return `Promise { <state>: "${state}" }`;
     }
 
     if (state === State.FULFILLED) {
-      const { state, value } = this;
+      const { state, value } = this[STATE];
       return `Promise { <state>: "${state}", <value>: ${value} }`;
     }
 
     if (state === State.REJECTED) {
-      const { state, value: reason } = this;
+      const { state, value: reason } = this[STATE];
       return `Promise { <state>: "${state}", <reason>: ${reason} }`;
     }
   }
