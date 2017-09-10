@@ -7,6 +7,7 @@
   "devDependencies": {
     "ava": "^0.22.0",
     "babel-cli": "^6.26.0",
+    "babel-plugin-module-resolver": "^2.7.1",
     "babel-preset-env": "^1.6.0",
     "babel-preset-stage-3": "^6.24.1",
     "eslint": "^4.6.1",
@@ -32,14 +33,21 @@
   },
   "homepage": "https://github.com/crux-wild/promise#readme",
   "ava": {
-    "files": ["spec/**/*.spec.js"],
-    "source": ["**/*.{js,jsx}", "!dist/**/*"],
+    "files": [
+      "spec/**/*.spec.js"
+    ],
+    "source": [
+      "**/*.{js,jsx}",
+      "!dist/**/*"
+    ],
     "concurrency": 5,
     "failFast": true,
     "failWithoutAssertions": false,
     "tap": true,
     "powerAssert": false,
-    "require": ["babel-register"],
+    "require": [
+      "babel-register"
+    ],
     "babel": "inherit"
   }
 }
