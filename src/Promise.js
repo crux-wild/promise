@@ -268,19 +268,18 @@ class Promise {
    * @public
    */
   toString() {
-    const { state } = this;
-
     if (state === State.PENDING) {
+      const { state } = this;
       return `Promise { <state>: "${state}" }`;
     }
 
     if (state === State.FULFILLED) {
-      const { value } = this;
+      const { state, value } = this;
       return `Promise { <state>: "${state}", <value>: ${value} }`;
     }
 
     if (state === State.REJECTED) {
-      const { value: reason } = this;
+      const { state, value: reason } = this;
       return `Promise { <state>: "${state}", <reason>: ${reason} }`;
     }
   }
