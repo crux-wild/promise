@@ -163,6 +163,7 @@ class Promise {
 
   /**
    * @static
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all
    */
   static all(iterable) {
     const promiseArray = [...iterable];
