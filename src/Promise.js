@@ -18,7 +18,7 @@ function fulfill(result) {
   this.state = Status.FULFILLED;
   this.value = result;
   this.handlers.forEach(handle);
-  this.handleers = null;
+  this.handlers = null;
 }
 
 /**
@@ -29,7 +29,7 @@ function reject(error) {
   this.state = Status.REJECT;
   this.value = error;
   this.handlers.forEach(handle);
-  this.handleers = null;
+  this.handlers = null;
 }
 
 /**
@@ -154,7 +154,7 @@ class Promise {
     this.done = false;
     this.value = null;
     this.handlers = [];
-    this.length = 0;
+    this.length = 1;
 
     doResolve(fn, resolve, reject);
   }
