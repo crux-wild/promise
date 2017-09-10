@@ -165,16 +165,13 @@ class Promise {
    */
   static all(iterable) {
     const promiseArray = [...iterable];
-    const allResult = {
-      result: [],
-      length: 0,
-    };
+    const allResult = { result: [], length: 0 };
     return new Promise((resolve, reject) => {
       promiseArray.forEach((promise, index) => {
         promise.then(
           (value) => {
-            const { result } = allResult;
-            allResult.length = allResult.length + 1;
+            const { result, length } = allResult;
+            allResult.length = length + 1;
             result[index] = value;
 
             if (allResult.length === promiseArray.length) {
