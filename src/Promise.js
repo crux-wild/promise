@@ -225,6 +225,7 @@ class Promise {
 
   /**
    * @public
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then
    */
   then(onFulfilled, onRejected) {
     return new Promise((resolve, reject) => {
