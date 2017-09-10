@@ -41,6 +41,7 @@ function resolve(result) {
     const then = Promise.getThen(result);
     if (then) {
       doResolve(then.bind(result), resolve, reject);
+      return;
     }
     fulfill(result);
   } catch (err) {
@@ -162,13 +163,6 @@ class Promise {
   /**
    * @static
    */
-  static resolve(value) {
-    // @TODO
-  }
-
-  /**
-   * @static
-   */
   static all() {
     // @TODO
   }
@@ -182,13 +176,24 @@ class Promise {
 
   /**
    * @static
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/resolve
    */
-  static reject(reason) {
-    // @TODO
+  static resolve(result) {
+    return resolve(result);
   }
 
   /**
-   * @method
+   * @static
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/reject
+   */
+  static reject(reason) {
+    return new Promise((resolve, reject) => {
+      reject(reason);
+    });
+  }
+
+  /**
+   * @public
    */
   then(onFulfilled, onRejected) {
     return new Promise((resolve, reject) => {
@@ -220,8 +225,7 @@ class Promise {
   }
 
   /**
-   * @method
-   *
+   * @public
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/catch
    */
   catch(onRejected) {
