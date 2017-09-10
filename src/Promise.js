@@ -229,7 +229,7 @@ class Promise {
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/catch
    */
   catch(onRejected) {
-    this.then(undefined, onRejected);
+    return this.then(undefined, onRejected);
   }
 }
 
