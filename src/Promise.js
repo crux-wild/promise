@@ -65,6 +65,7 @@ function getThen(value) {
 }
 
 /**
+ * @private
  * @param {Function} fn
  * @param {Function} onFulfilled
  * @param {Function} onRejected
@@ -91,6 +92,10 @@ function doResolve(fn, onFulfilled, onRejected) {
   }
 }
 
+/**
+ * @private
+ * @param {Handler} handler
+ */
 function handle(handler) {
   if (this.state === State.PENDING) {
     this.handlers.push(handler);
@@ -106,6 +111,18 @@ function handle(handler) {
       handler.onFulfilled(value);
     }
   }
+}
+
+/**
+ * @private
+ * @param {Function} onFulfilled
+ * @param {Function} onRejected
+ */
+function done(onFulfilled, onRejected) {
+  setTimeout(() => {
+    const handler = new Handler(onFulfilled, onRejected);
+    handle(handler);
+  }, 0);
 }
 
 /**
@@ -142,29 +159,37 @@ class Promise {
     doResolve(fn, resolve, reject);
   }
 
+  /**
+   * @static
+   */
   static resolve(value) {
     // @TODO
   }
 
+  /**
+   * @static
+   */
   static all() {
     // @TODO
   }
 
+  /**
+   * @static
+   */
   static race() {
     // @TODO
   }
 
+  /**
+   * @static
+   */
   static reject(reason) {
     // @TODO
   }
 
-  done(onFulfilled, onRejected) {
-    setTimeout(() => {
-      const handler = new Handler(onFulfilled, onRejected);
-      handle(handler);
-    }, 0);
-  }
-
+  /**
+   * @method
+   */
   then(onFulfilled, onRejected) {
     return new Promise((resolve, reject) => {
       return this.done(
@@ -194,6 +219,9 @@ class Promise {
     );
   }
 
+  /**
+   * @method
+   */
   catch(onRejected) {
     // @TODO
   }
