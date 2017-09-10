@@ -4,13 +4,14 @@
  * @readonly
  * @enum {number}
  */
-const Status = {
+const Status = Object.freeze({
   PENDING: 0,
   FULFILLED: 1,
   REJECT: 2,
-};
+});
 
 /**
+ * `Promise`状态对应标志
  * @private
  * @readonly
  * @const
@@ -18,6 +19,7 @@ const Status = {
 const STATE = Symbol('state');
 
 /**
+ * 扭转`Promise`的状态到完成
  * @private
  * @param {Any} result
  */
@@ -29,6 +31,7 @@ function fulfill(result) {
 }
 
 /**
+ * 扭转`Promise`的状态到完成
  * @private
  * @param {Error} error
  */
@@ -40,6 +43,7 @@ function reject(error) {
 }
 
 /**
+ * 扭转`Promise`状态状态到拒绝
  * @private
  * @param {Any|Promise} result
  */
@@ -57,6 +61,7 @@ function resolve(result) {
 }
 
 /**
+ * 获取值的`then`方法
  * @private
  * @param {Any|Promise} value
  * @return {Function|Null}
@@ -73,6 +78,7 @@ function getThen(value) {
 }
 
 /**
+ * 确保`Promise`状态只扭转一次
  * @private
  * @param {Function} fn
  * @param {Function} onFulfilled
@@ -101,6 +107,7 @@ function doResolve(fn, onFulfilled, onRejected) {
 }
 
 /**
+ * 根据`Promise`状态操作其对应值
  * @private
  * @param {Handler} handler
  */
@@ -122,6 +129,7 @@ function handle(handler) {
 }
 
 /**
+ * 确保对`Promise`的值的操作是异步完成的
  * @private
  * @param {Function} onFulfilled
  * @param {Function} onRejected
@@ -134,6 +142,7 @@ function done(onFulfilled, onRejected) {
 }
 
 /**
+ * 对`Promise`的值操作类
  * @private
  * @class
  */
@@ -160,12 +169,12 @@ class Promise {
   constructor(...args) {
     Object.defineProperties(this, {
       [STATE]: {
-        value: {
+        value: Object.seal({
           state: Status.PENDING,
           done: false,
           value: null,
           handlers: [],
-        },
+        }),
         configurable: false,
         enumerable: false,
         writable: false,
