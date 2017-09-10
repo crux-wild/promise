@@ -166,9 +166,10 @@ class Promise {
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all
    */
   static all(iterable) {
-    const promiseArray = [...iterable];
-    const allResult = { result: [], length: 0 };
     return new Promise((resolve, reject) => {
+      const promiseArray = [...iterable];
+      const allResult = { result: [], length: 0 };
+
       promiseArray.forEach((promise, index) => {
         promise.then(
           (value) => {
