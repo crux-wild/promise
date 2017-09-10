@@ -135,7 +135,8 @@ class Promise {
    */
   static race(iterable) {
     return new Promise((resolve, reject) => {
-      for (const value of iterable) {
+      const valueArray = [...iterable];
+      valueArray.forEach((value) => {
         const promise = resolve(value);
         promise.then(
           (result) => {
@@ -145,7 +146,7 @@ class Promise {
             reject(reason);
           },
         );
-      }
+      });
     });
   }
 
