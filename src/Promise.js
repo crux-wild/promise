@@ -1,4 +1,23 @@
 /**
+ * `Promise`状态机状态枚举类
+ * @private
+ * @readonly
+ * @enum {number}
+ */
+const Status = {
+  PENDING: 0,
+  FULFILLED: 1,
+  REJECT: 2,
+};
+
+/**
+ * @private
+ * @readonly
+ * @const
+ */
+const STATE = Symbol('state');
+
+/**
  * @private
  * @param {Any} result
  */
@@ -124,26 +143,6 @@ class Handler {
     this.onRejected = onRejected;
   }
 }
-
-
-/**
- * `Promise`状态机状态枚举类
- * @private
- * @readonly
- * @enum {number}
- */
-const Status = {
-  PENDING: 0,
-  FULFILLED: 1,
-  REJECT: 2,
-};
-
-/**
- * @private
- * @readonly
- * @const
- */
-const STATE = Symbol('state');
 
 /**
  * `Promise`的`es6`实现版本
