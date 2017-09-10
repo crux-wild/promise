@@ -183,6 +183,7 @@ class Promise {
   }
 
   catch(onRejected) {
+    // @TODO
   }
 }
 
