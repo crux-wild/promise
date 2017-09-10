@@ -23,24 +23,8 @@ const Sym = Object.freeze({
   REJECT: Symbol('reject'),
   FULFILL: Symbol('fulfill'),
   DO_RESOLVE: Symbol('doResolve'),
+  GET_THEN: Symbol('getThen'),
 });
-
-/**
- * 获取值的`then`方法
- * @private
- * @param {Any|Promise} value
- * @return {Function|Null}
- */
-function getThen(value) {
-  const t = typeof value;
-  if (value && (t === 'object' || t === 'function')) {
-    const then = value.then;
-    if (typeof then === 'function') {
-      return then;
-    }
-  }
-  return null;
-}
 
 /**
  * 对`Promise`的值操作类
@@ -97,6 +81,23 @@ class Promise {
     const [fn] = args;
 
     doResolve(fn, resolve, reject);
+  }
+
+  /**
+   * 获取值的`then`方法
+   * @private
+   * @param {Any|Promise} value
+   * @return {Function|Null}
+   */
+  static [Sym.GET_THEN](value) {
+    const t = typeof value;
+    if (value && (t === 'object' || t === 'function')) {
+      const then = value.then;
+      if (typeof then === 'function') {
+        return then;
+      }
+    }
+    return null;
   }
 
   /**
@@ -257,6 +258,7 @@ class Promise {
    */
   resolve(result) {
     try {
+      const { [Sym.GET_THEN]: getThen } = Promise;
       const then = getThen(result);
       if (then) {
         const {
