@@ -163,15 +163,27 @@ class Promise {
   /**
    * @static
    */
-  static all() {
+  static all(iterable) {
     // @TODO
   }
 
   /**
    * @static
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/race
    */
-  static race() {
-    // @TODO
+  static race(iterator) {
+    return new Promise((resolve, reject) => {
+      for (const promise of iterator) {
+        promise.then(
+          (value) => {
+            resolve(value);
+          },
+          (reason) => {
+            reject(reason);
+          }
+        );
+      }
+    });
   }
 
   /**
