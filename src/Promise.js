@@ -291,7 +291,7 @@ class Promise {
   }
 
   /**
-   * 绑定操作处理操作
+   * 绑定拒绝处理操作
    * @public
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/catch
    */
