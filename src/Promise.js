@@ -130,7 +130,7 @@ function done(onFulfilled, onRejected) {
  * @private
  * @class
  */
-class Handle {
+class Handler {
   constructor(onFulfilled, onRejected) {
     this.onFulfilled = onFulfilled;
     this.onRejected = onRejected;
