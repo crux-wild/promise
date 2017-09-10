@@ -190,9 +190,9 @@ class Promise {
    * @static
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/race
    */
-  static race(iterator) {
+  static race(iterable) {
     return new Promise((resolve, reject) => {
-      for (const promise of iterator) {
+      for (const promise of iterable) {
         promise.then(
           (value) => {
             resolve(value);
