@@ -10,7 +10,28 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * `Promise`状态机状态枚举类
+ * @private
+ * @readonly
+ * @enum {number}
+ */
+var Status = {
+  PENDING: 0,
+  FULFILLED: 1,
+  REJECT: 2
+};
+
+/**
+ * @private
+ * @readonly
+ * @const
+ */
+var STATE = Symbol('state');
 
 /**
  * @private
@@ -138,27 +159,6 @@ var Handler = function Handler(onFulfilled, onRejected) {
 };
 
 /**
- * `Promise`状态机状态枚举类
- * @private
- * @readonly
- * @enum {number}
- */
-
-
-var Status = {
-  PENDING: 0,
-  FULFILLED: 1,
-  REJECT: 2
-};
-
-/**
- * @private
- * @readonly
- * @const
- */
-var STATE = Symbol('state');
-
-/**
  * `Promise`的`es6`实现版本
  *
  * @see https://www.promisejs.org/
@@ -168,29 +168,32 @@ var STATE = Symbol('state');
  * @class
  */
 
+
 var Promise = function () {
   /**
    * @constructor
    */
   function Promise() {
+    var _Object$definePropert;
+
     _classCallCheck(this, Promise);
-
-    this[STATE] = {
-      state: Status.PENDING,
-      done: false,
-      value: null,
-      handlers: []
-    };
-
-    /**
-     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise#Properties
-     */
 
     for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
 
-    this.length = args.length;
+    Object.defineProperties(this, (_Object$definePropert = {}, _defineProperty(_Object$definePropert, STATE, {
+      value: {
+        state: Status.PENDING,
+        done: false,
+        value: null,
+        handlers: []
+      },
+      writable: false
+    }), _defineProperty(_Object$definePropert, 'length', {
+      value: args.length,
+      writable: false
+    }), _Object$definePropert));
 
     var fn = args[0];
 

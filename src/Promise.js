@@ -158,17 +158,24 @@ class Promise {
    * @constructor
    */
   constructor(...args) {
-    this[STATE] = {
-      state: Status.PENDING,
-      done: false,
-      value: null,
-      handlers: [],
-    };
-
-    /**
-     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise#Properties
-     */
-    this.length = args.length;
+    Object.defineProperties(this, {
+      [STATE]: {
+        value: {
+          state: Status.PENDING,
+          done: false,
+          value: null,
+          handlers: [],
+        },
+        configurable: false,
+        enumerable: false,
+        writable: false,
+      },
+      length: {
+        value: args.length,
+        configurable: false,
+        writable: false,
+      },
+    });
 
     const [fn] = args;
     doResolve(fn, resolve, reject);
