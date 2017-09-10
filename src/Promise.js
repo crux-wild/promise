@@ -38,7 +38,7 @@ function reject(error) {
  */
 function resolve(result) {
   try {
-    const then = Promise.getThen(result);
+    const then = getThen(result);
     if (then) {
       doResolve(then.bind(result), resolve, reject);
       return;
