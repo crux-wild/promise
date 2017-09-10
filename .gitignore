@@ -59,4 +59,4 @@ typings/
 
 
 # babel build product directory
-build/**/*
+dist/**/*
