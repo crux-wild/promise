@@ -192,7 +192,7 @@ class Promise {
    */
   then(onFulfilled, onRejected) {
     return new Promise((resolve, reject) => {
-      return this.done(
+      return done(
         (result) => {
           if (typeof onFulfilled === 'function') {
             try {
