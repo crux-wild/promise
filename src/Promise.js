@@ -226,7 +226,8 @@ class Promise {
    */
   static race(iterable) {
     return new Promise((resolve, reject) => {
-      for (const promise of iterable) {
+      for (const value of iterable) {
+        const promise = resolve(value);
         promise.then(
           (value) => {
             resolve(value);
