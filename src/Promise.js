@@ -157,6 +157,9 @@ class Promise {
     this.value = null;
     this.handlers = [];
 
+    /**
+     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise#Properties
+     */
     this.length = args.length;
 
     const [fn] = args;
