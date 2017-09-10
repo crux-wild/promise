@@ -42,9 +42,9 @@
     ],
     "concurrency": 5,
     "failFast": true,
-    "failWithoutAssertions": false,
-    "tap": true,
-    "powerAssert": false,
+    "failWithoutAssertions": true,
+    "tap": false,
+    "powerAssert": true,
     "require": [
       "babel-register"
     ],
