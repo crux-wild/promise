@@ -164,7 +164,7 @@ var Promise = function () {
   /**
    * @constructor
    */
-  function Promise(fn) {
+  function Promise() {
     _classCallCheck(this, Promise);
 
     // @FIXME 隐藏状态机内部状态
@@ -172,7 +172,14 @@ var Promise = function () {
     this.done = false;
     this.value = null;
     this.handlers = [];
-    this.length = 1;
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    this.length = args.length;
+
+    var fn = args[0];
 
     doResolve(fn, _resolve, reject);
   }

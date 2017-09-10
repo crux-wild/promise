@@ -150,14 +150,16 @@ class Promise {
   /**
    * @constructor
    */
-  constructor(fn) {
+  constructor(...args) {
     // @FIXME 隐藏状态机内部状态
     this.state = Status.PENDING;
     this.done = false;
     this.value = null;
     this.handlers = [];
-    this.length = 1;
 
+    this.length = args.length;
+
+    const [fn] = args;
     doResolve(fn, resolve, reject);
   }
 
