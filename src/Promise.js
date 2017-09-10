@@ -4,61 +4,26 @@
  * @readonly
  * @enum {number}
  */
-const Status = Object.freeze({
+const State = Object.freeze({
   PENDING: 0,
   FULFILLED: 1,
   REJECT: 2,
 });
 
 /**
- * `Promise`状态对应标志
+ * `Promise`状态机标志枚举类
  * @private
  * @readonly
- * @const
+ * @enum {number}
  */
-const STATE = Symbol('state');
-
-/**
- * 扭转`Promise`的状态到完成
- * @private
- * @param {Any} result
- */
-function fulfill(result) {
-  this[STATE].state = Status.FULFILLED;
-  this[STATE].value = result;
-  this[STATE].handlers.forEach(handle);
-  this[STATE].handlers = null;
-}
-
-/**
- * 扭转`Promise`的状态到完成
- * @private
- * @param {Error} error
- */
-function reject(error) {
-  this[STATE].state = Status.REJECT;
-  this[STATE].value = error;
-  this[STATE].handlers.forEach(handle);
-  this[STATE].handlers = null;
-}
-
-/**
- * 扭转`Promise`状态状态到拒绝
- * @private
- * @param {Any|Promise} result
- */
-function resolve(result) {
-  try {
-    const then = getThen(result);
-    if (then) {
-      doResolve(then.bind(result), resolve, reject);
-      return;
-    }
-    fulfill(result);
-  } catch (err) {
-    reject(err);
-  }
-}
+const Sym = Object.freeze({
+  STATE: Symbol('state'),
+  DONE: Symbol('done'),
+  HANDLE: Symbol('handle'),
+  REJECT: Symbol('reject'),
+  FULFILL: Symbol('fulfill'),
+  DO_RESOLVE: Symbol('doResolve'),
+});
 
 /**
  * 获取值的`then`方法
@@ -68,77 +33,13 @@ function resolve(result) {
  */
 function getThen(value) {
   const t = typeof value;
-  if (value && (t == 'object' || t == 'function')) {
+  if (value && (t === 'object' || t === 'function')) {
     const then = value.then;
     if (typeof then === 'function') {
       return then;
     }
   }
   return null;
-}
-
-/**
- * 确保`Promise`状态只扭转一次
- * @private
- * @param {Function} fn
- * @param {Function} onFulfilled
- * @param {Function} onRejected
- */
-function doResolve(fn, onFulfilled, onRejected) {
-  if (this[STATE].done === false) return;
-  try {
-    fn(
-      (value) => {
-        if (done) return;
-        this[STATE].done = true;
-        onFulfilled(value);
-      },
-      (reason) => {
-        if (done) return;
-        this[STATE].done = true;
-        onRejected(reason);
-      }
-    );
-  } catch (err) {
-    if (done) return;
-    this[STATE].done = true;
-    onRejected(err);
-  }
-}
-
-/**
- * 根据`Promise`状态操作其对应值
- * @private
- * @param {Handler} handler
- */
-function handle(handler) {
-  if (this[STATE].state === State.PENDING) {
-    this[STATE].handlers.push(handler);
-  } else {
-    if (this[STATE].state === State.FULFILLED &&
-      typeof handler.onFulfilled === 'function') {
-
-      handler.onFulfilled(value);
-    }
-    if (this[STATE].state === State.REJECTED &&
-      typeof handler.onReject === 'function') {
-
-      handler.onFulfilled(value);
-    }
-  }
-}
-
-/**
- * 确保对`Promise`的值的操作是异步完成的
- * @private
- * @param {Function} onFulfilled
- * @param {Function} onRejected
- */
-function done(onFulfilled, onRejected) {
-  setTimeout(() => {
-    const handler = new Handler(onFulfilled, onRejected);
-    handle(handler);
-  }, 0);
 }
 
 /**
@@ -168,14 +69,14 @@ class Promise {
    */
   constructor(...args) {
     const state = Object.seal({
-      state: Status.PENDING,
+      state: State.PENDING,
       done: false,
       value: null,
       handlers: [],
     });
 
     Object.defineProperties(this, {
-      [STATE]: {
+      [Sym.STATE]: {
         value: state,
         configurable: false,
         enumerable: false,
@@ -188,7 +89,13 @@ class Promise {
       },
     });
 
+    const {
+      [Sym.DO_RESOLVE]: doResolve,
+      [Sym.RESOLVE]: resolve,
+      [Sym.REJECT]: reject,
+    } = this;
     const [fn] = args;
+
     doResolve(fn, resolve, reject);
   }
 
@@ -204,16 +111,16 @@ class Promise {
       valueArray.forEach((value, index) => {
         const promise = resolve(value);
         promise.then(
-          (value) => {
+          (result) => {
             allResult.length = allResult.length + 1;
-            allResult.result[index] = value;
-            if (allResult.length === promiseArray.length) {
+            allResult.result[index] = result;
+            if (allResult.length === valueArray.length) {
               resolve(allResult.result);
             }
           },
           (reason) => {
             reject(reason);
-          }
+          },
         );
       });
     });
@@ -229,12 +136,12 @@ class Promise {
       for (const value of iterable) {
         const promise = resolve(value);
         promise.then(
-          (value) => {
-            resolve(value);
+          (result) => {
+            resolve(result);
           },
           (reason) => {
             reject(reason);
-          }
+          },
         );
       }
     });
@@ -246,7 +153,9 @@ class Promise {
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/resolve
    */
   static resolve(result) {
-    return resolve(result);
+    return new Promise((resolve, reject) => {
+      // @TODO
+    });
   }
 
   /**
@@ -261,17 +170,137 @@ class Promise {
   }
 
   /**
+   * 确保对`Promise`的值的操作是异步完成的
+   * @private
+   * @param {Function} onFulfilled
+   * @param {Function} onRejected
+   */
+  [Sym.DONE](onFulfilled, onRejected) {
+    setTimeout(() => {
+      const { [Sym.HANDLE]: handle } = this;
+      const handler = new Handler(onFulfilled, onRejected);
+      handle(handler);
+    }, 0);
+  }
+
+  /**
+   * 根据`Promise`状态操作其对应值
+   * @private
+   * @param {Handler} handler
+   */
+  [Sym.HANDLE](handler) {
+    if (this[Sym.STATE].state === State.PENDING) {
+      this[Sym.STATE].handlers.push(handler);
+    } else {
+      if (this[Sym.STATE].state === State.FULFILLED &&
+        typeof handler.onFulfilled === 'function') {
+
+        handler.onFulfilled(this[Sym.STATE].value);
+      }
+
+      if (this[Sym.STATE].state === State.REJECTED &&
+        typeof handler.onReject === 'function') {
+
+        handler.onFulfilled(this[Sym.STATE].value);
+      }
+    }
+  }
+
+  /**
+   * 扭转`Promise`的状态到完成
+   * @private
+   * @param {Any} result
+   */
+  [Sym.FULFILL](result) {
+    const { [Sym.HANDLE]: handle } = this;
+    this[Sym.STATE].state = State.FULFILLED;
+    this[Sym.STATE].value = result;
+    this[Sym.STATE].handlers.forEach(handle);
+    this[Sym.STATE].handlers = null;
+  }
+
+  /**
+   * 确保`Promise`状态只扭转一次
+   * @private
+   * @param {Function} fn
+   * @param {Function} onFulfilled
+   * @param {Function} onRejected
+   */
+  [Sym.DO_RESOLVE](fn, onFulfilled, onRejected) {
+    const { done: isDone } = this[Sym.STATE];
+
+    if (!isDone) return;
+    try {
+      fn(
+        (value) => {
+          if (isDone) return;
+          this[Sym.STATE].done = true;
+          onFulfilled(value);
+        },
+        (reason) => {
+          if (isDone) return;
+          this[Sym.STATE].done = true;
+          onRejected(reason);
+        },
+      );
+    } catch (err) {
+      if (isDone) return;
+      this[Sym.STATE].done = true;
+      onRejected(err);
+    }
+  }
+
+  /**
+   * 扭转`Promise`状态状态到拒绝
+   * @private
+   * @param {Any|Promise} result
+   */
+  resolve(result) {
+    try {
+      const then = getThen(result);
+      if (then) {
+        const {
+          [Sym.DO_RESOLVE]: doResolve,
+          [Sym.RESOLVE]: resolve,
+          [Sym.REJECT]: reject,
+        } = this;
+        doResolve(then.bind(result), resolve, reject);
+        return;
+      }
+      this.fulfill(result);
+    } catch (err) {
+      const { [Sym.REJECT]: reject } = this;
+      reject(err);
+    }
+  }
+
+
+  /**
+   * 扭转`Promise`的状态到完成
+   * @private
+   * @param {Error} error
+   */
+  reject(error) {
+    const { [Sym.HANDLE]: handle } = this;
+    this[Sym.STATE].state = State.REJECT;
+    this[Sym.STATE].value = error;
+    this[Sym.STATE].handlers.forEach(handle);
+    this[Sym.STATE].handlers = null;
+  }
+
+  /**
    * 绑定完成或者失败操作
    * @public
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then
    */
   then(onFulfilled, onRejected) {
     return new Promise((resolve, reject) => {
-      return done(
+      const { [Sym.DONE]: done } = this;
+      return done.bind(this)(
         (result) => {
           if (typeof onFulfilled === 'function') {
             try {
-              return resolve(onFulFilled(result));
+              return resolve(onFulfilled(result));
             } catch (err) {
               return reject(err);
             }
@@ -279,17 +308,17 @@ class Promise {
             return resolve(result);
           }
         },
-        (error) => {
+        (err) => {
           if (typeof onRejected === 'function') {
             try {
-              return resolve(onRejected(error));
-            } catch (err) {
-              return reject(err);
+              return resolve(onRejected(err));
+            } catch (error) {
+              return reject(error);
             }
           } else {
             return reject(err);
           }
-        }
+        },
       );
     });
   }
@@ -308,20 +337,24 @@ class Promise {
    * @public
    */
   toString() {
+    const { state } = this[Sym.STATE];
+    let serialization;
+
     if (state === State.PENDING) {
-      const { state } = this[STATE];
-      return `Promise { <state>: "${state}" }`;
+      serialization = `Promise { <state>: "${state}" }`;
     }
 
     if (state === State.FULFILLED) {
-      const { state, value } = this[STATE];
-      return `Promise { <state>: "${state}", <value>: ${value} }`;
+      const { value } = this[Sym.STATE];
+      serialization = `Promise { <state>: "${state}", <value>: ${value} }`;
     }
 
     if (state === State.REJECTED) {
-      const { state, value: reason } = this[STATE];
-      return `Promise { <state>: "${state}", <reason>: ${reason} }`;
+      const { value: reason } = this[Sym.STATE];
+      serialization = `Promise { <state>: "${state}", <reason>: ${reason} }`;
     }
+
+    return serialization;
   }
 }
 
