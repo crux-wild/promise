@@ -167,14 +167,16 @@ class Promise {
    * @constructor
    */
   constructor(...args) {
+    const state = Object.seal({
+      state: Status.PENDING,
+      done: false,
+      value: null,
+      handlers: [],
+    });
+
     Object.defineProperties(this, {
       [STATE]: {
-        value: Object.seal({
-          state: Status.PENDING,
-          done: false,
-          value: null,
-          handlers: [],
-        }),
+        value: state,
         configurable: false,
         enumerable: false,
         writable: false,
