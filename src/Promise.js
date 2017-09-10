@@ -203,27 +203,29 @@ class Promise {
           } else {
             return resolve(result);
           }
-        });
-      },
-      (error) => {
-        if (typeof onRejected === 'function') {
-          try {
-            return resolve(onRejected(error));
-          } catch (err) {
+        },
+        (error) => {
+          if (typeof onRejected === 'function') {
+            try {
+              return resolve(onRejected(error));
+            } catch (err) {
+              return reject(err);
+            }
+          } else {
             return reject(err);
           }
-        } else {
-          return reject(err);
         }
-      }
-    );
+      );
+    };
   }
 
   /**
    * @method
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/catch
    */
   catch(onRejected) {
-    // @TODO
+    this.then(undefined, onRejected);
   }
 }
 
