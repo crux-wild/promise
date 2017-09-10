@@ -86,6 +86,7 @@ class Promise {
   /**
    * 获取值的`then`方法
    * @private
+   * @static
    * @param {Any|Promise} value
    * @return {Function|Null}
    */
@@ -113,7 +114,7 @@ class Promise {
         const promise = resolve(value);
         promise.then(
           (result) => {
-            allResult.length = allResult.length + 1;
+            allResult.length += 1;
             allResult.result[index] = result;
             if (allResult.length === valueArray.length) {
               resolve(allResult.result);
@@ -155,7 +156,17 @@ class Promise {
    */
   static resolve(result) {
     return new Promise((resolve, reject) => {
-      // @TODO
+      try {
+        const { [Sym.GET_THEN]: getThen } = Promise;
+        const then = getThen(result);
+        if (then) {
+          result.then(resolve, reject);
+          return;
+        }
+        resolve(result);
+      } catch (err) {
+        reject(err);
+      }
     });
   }
 
@@ -195,13 +206,11 @@ class Promise {
     } else {
       if (this[Sym.STATE].state === State.FULFILLED &&
         typeof handler.onFulfilled === 'function') {
-
         handler.onFulfilled(this[Sym.STATE].value);
       }
 
       if (this[Sym.STATE].state === State.REJECTED &&
         typeof handler.onReject === 'function') {
-
         handler.onFulfilled(this[Sym.STATE].value);
       }
     }
@@ -256,7 +265,7 @@ class Promise {
    * @private
    * @param {Any|Promise} result
    */
-  resolve(result) {
+  [Sym.RESOLVE](result) {
     try {
       const { [Sym.GET_THEN]: getThen } = Promise;
       const then = getThen(result);
@@ -282,7 +291,7 @@ class Promise {
    * @private
    * @param {Error} error
    */
-  reject(error) {
+  [Sym.REJECT](error) {
     const { [Sym.HANDLE]: handle } = this;
     this[Sym.STATE].state = State.REJECT;
     this[Sym.STATE].value = error;
