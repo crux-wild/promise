@@ -50,7 +50,7 @@ function resolve(result) {
 
 /**
  * @private
- * @param {Promise|Any} value
+ * @param {Any|Promise} value
  * @return {Function|Null}
  */
 function getThen(value) {
@@ -72,15 +72,18 @@ function getThen(value) {
 function doResolve(fn, onFulfilled, onRejected) {
   if (this.done === false) return;
   try {
-    fn((value) => {
+    fn(
+      (value) => {
       if (done) return;
       this.done = true;
       onFulfilled(value);
-    }, (reason) => {
+      },
+      (reason) => {
       if (done) return;
       this.done = true;
       onRejected(reason);
-    });
+      }
+    );
   } catch (err) {
     if (done) return;
     this.done = true;
@@ -90,7 +93,7 @@ function doResolve(fn, onFulfilled, onRejected) {
 
 function handle(handler) {
   if (this.state === State.PENDING) {
-    handlers.push(handler);
+    this.handlers.push(handler);
   } else {
     if (this.state === State.FULFILLED &&
       typeof handler.onFulfilled === 'function') {
@@ -102,6 +105,17 @@ function handle(handler) {
 
       handler.onFulfilled(value);
     }
+  }
+}
+
+/**
+ * @private
+ * @class
+ */
+class Handle {
+  constructor(onFulfilled, onRejected) {
+    this.onFulfilled = onFulfilled;
+    this.onRejected = onRejected;
   }
 }
 
@@ -146,10 +160,8 @@ class Promise {
 
   done(onFulfilled, onRejected) {
     setTimeout(() => {
-      handle({
-        onFulfilled,
-        onRejected,
-      });
+      const handler = new Handler(onFulfilled, onRejected);
+      handle(handler);
     }, 0);
   }
 
