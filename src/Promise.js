@@ -191,6 +191,7 @@ class Promise {
   }
 
   /**
+   * 获取一组`Promise`全部到达时的`Promise`实例
    * @static
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all
    */
@@ -216,6 +217,7 @@ class Promise {
   }
 
   /**
+   * 获取一组`Promise`实例最先完成`Promise`数值
    * @static
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/race
    */
@@ -235,6 +237,7 @@ class Promise {
   }
 
   /**
+   * 获取对应值的完成`Promise`实例
    * @static
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/resolve
    */
@@ -243,6 +246,7 @@ class Promise {
   }
 
   /**
+   * 获取对应原因的失败`Promise`实例
    * @static
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/reject
    */
@@ -253,6 +257,7 @@ class Promise {
   }
 
   /**
+   * 绑定完成或者失败操作
    * @public
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then
    */
@@ -286,6 +291,7 @@ class Promise {
   }
 
   /**
+   * 绑定操作处理操作
    * @public
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/catch
    */
@@ -294,6 +300,7 @@ class Promise {
   }
 
   /**
+   * 序列化`Promise`实例
    * @public
    */
   toString() {
