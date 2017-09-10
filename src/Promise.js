@@ -263,6 +263,27 @@ class Promise {
   catch(onRejected) {
     return this.then(undefined, onRejected);
   }
+
+  /**
+   * @public
+   */
+  toString() {
+    const { state } = this;
+
+    if (state === State.PENDING) {
+      return `Promise { <state>: "${state}" }`
+    }
+
+    if (state === State.FULFILLED) {
+      const { value } = this;
+      return `Promise { <state>: "${state}", <value>: ${value} }`
+    }
+
+    if (state === State.REJECTED) {
+      const { value: reason } = this;
+      return `Promise { <state>: "${state}", <reason>: ${reason} }`
+    }
+  }
 }
 
 export default Promise;
