@@ -80,7 +80,7 @@ class Promise {
     } = this;
     const [fn] = args;
 
-    doResolve(fn, resolve, reject);
+    doResolve.bind(this)(fn, resolve, reject);
   }
 
   /**
@@ -192,7 +192,7 @@ class Promise {
     setTimeout(() => {
       const { [Sym.HANDLE]: handle } = this;
       const handler = new Handler(onFulfilled, onRejected);
-      handle(handler);
+      handle.bind(this)(handler);
     }, 0);
   }
 
@@ -226,7 +226,7 @@ class Promise {
     const { [Sym.HANDLE]: handle } = this;
     this[Sym.STATE].state = State.FULFILLED;
     this[Sym.STATE].value = result;
-    this[Sym.STATE].handlers.forEach(handle);
+    this[Sym.STATE].handlers.forEach(handle.bind(this));
     this[Sym.STATE].handlers = null;
   }
 
@@ -279,10 +279,10 @@ class Promise {
         doResolve(then.bind(result), resolve, reject);
         return;
       }
-      this.fulfill(result);
+      resolve.bind(this)(result);
     } catch (err) {
       const { [Sym.REJECT]: reject } = this;
-      reject(err);
+      reject.bind(this)(err);
     }
   }
 
@@ -296,7 +296,7 @@ class Promise {
     const { [Sym.HANDLE]: handle } = this;
     this[Sym.STATE].state = State.REJECT;
     this[Sym.STATE].value = error;
-    this[Sym.STATE].handlers.forEach(handle);
+    this[Sym.STATE].handlers.forEach(handle.bind(this));
     this[Sym.STATE].handlers = null;
   }
 
@@ -306,7 +306,6 @@ class Promise {
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then
    */
   then(onFulfilled, onRejected) {
-    return new Promise((resolve, reject) => {
       const { [Sym.DONE]: done } = this;
       return done.bind(this)(
         (result) => {
@@ -331,8 +330,7 @@ class Promise {
             return reject(err);
           }
         },
-      );
-    });
+    );
   }
 
   /**
