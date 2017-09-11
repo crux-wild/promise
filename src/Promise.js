@@ -8,8 +8,18 @@ class Handler {
    * @constructor
    */
   constructor(onFulfilled, onRejected) {
-    this.onFulfilled = onFulfilled;
-    this.onRejected = onRejected;
+    Object.defineProperties(this, {
+      onFulfilled: {
+        value: onFulfilled,
+        configurable: false,
+        writable: false,
+      },
+      onRejected: {
+        value: onRejected,
+        configurable: false,
+        writable: false,
+      },
+    });
   }
 }
 
