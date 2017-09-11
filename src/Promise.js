@@ -1,4 +1,19 @@
 /**
+ * 对`Promise`的值操作类
+ * @private
+ * @class
+ */
+class Handler {
+  /**
+   * @constructor
+   */
+  constructor(onFulfilled, onRejected) {
+    this.onFulfilled = onFulfilled;
+    this.onRejected = onRejected;
+  }
+}
+
+/**
  * `Promise`状态机状态枚举类
  * @private
  * @readonly
@@ -25,21 +40,6 @@ const Sym = Object.freeze({
   DO_RESOLVE: Symbol('doResolve'),
   GET_THEN: Symbol('getThen'),
 });
-
-/**
- * 对`Promise`的值操作类
- * @private
- * @class
- */
-class Handler {
-  /**
-   * @constructor
-   */
-  constructor(onFulfilled, onRejected) {
-    this.onFulfilled = onFulfilled;
-    this.onRejected = onRejected;
-  }
-}
 
 /**
  * `Promise`的`es6`实现版本
