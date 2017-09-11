@@ -314,7 +314,13 @@ class Promise {
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then
    */
   then(onFulfilled, onRejected) {
-    const { [Sym.DONE]: done } = this;
+    const {
+      [Sym.REJECT]: reject,
+      [Sym.RESOLVE]: resolve,
+    } = Promise;
+    const {
+      [Sym.DONE]: done,
+    } = this;
     return done.bind(this)(
       (result) => {
         if (typeof onFulfilled === 'function') {
