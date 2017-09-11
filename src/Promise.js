@@ -32,6 +32,9 @@ const Sym = Object.freeze({
  * @class
  */
 class Handler {
+  /**
+   * @constructor
+   */
   constructor(onFulfilled, onRejected) {
     this.onFulfilled = onFulfilled;
     this.onRejected = onRejected;
@@ -79,7 +82,6 @@ class Promise {
       [Sym.REJECT]: reject,
     } = this;
     const [fn] = args;
-
     doResolve.bind(this)(fn, resolve, reject);
   }
 
@@ -218,6 +220,69 @@ class Promise {
   }
 
   /**
+   * 确保`Promise`状态只扭转一次
+   * @private
+   * @param {Function} fn
+   * @param {Function} onFulfilled
+   * @param {Function} onRejected
+   */
+  [Sym.DO_RESOLVE](fn, onFulfilled, onRejected) {
+    const { done: isDone } = this[Sym.STATE];
+    if (isDone) return;
+    try {
+      fn(
+        (value) => {
+          if (isDone) return;
+          this[Sym.STATE].done = true;
+          onFulfilled.bind(this)(value);
+        },
+        (reason) => {
+          if (isDone) return;
+          this[Sym.STATE].done = true;
+          onRejected.bind(this)(reason);
+        },
+      );
+    } catch (err) {
+      if (isDone) return;
+      this[Sym.STATE].done = true;
+      onRejected.bind(this)(err);
+    }
+  }
+
+  /**
+   * 扭转`Promise`状态状态到拒绝
+   * @private
+   * @param {Any|Promise} result
+   */
+  [Sym.RESOLVE](result) {
+    try {
+      const {
+        [Sym.DO_RESOLVE]: doResolve,
+        [Sym.FULFILL]: fulfill,
+        [Sym.REJECT]: reject,
+      } = this;
+      const {
+        [Sym.GET_THEN]: getThen,
+      } = Promise;
+
+      const then = getThen(result);
+      if (then) {
+        doResolve.bind(this)(
+          then.bind(result)(
+            fulfill,
+            reject,
+          )
+        );
+        return;
+      }
+      fulfill.bind(this)(result);
+    } catch (err) {
+      const { [Sym.REJECT]: reject } = this;
+      reject.bind(this)(err);
+    }
+  }
+
+  /**
    * 扭转`Promise`的状态到完成
    * @private
    * @param {Any} result
@@ -230,61 +295,6 @@ class Promise {
     this[Sym.STATE].handlers = null;
   }
 
-  /**
-   * 确保`Promise`状态只扭转一次
-   * @private
-   * @param {Function} fn
-   * @param {Function} onFulfilled
-   * @param {Function} onRejected
-   */
-  [Sym.DO_RESOLVE](fn, onFulfilled, onRejected) {
-    const { done: isDone } = this[Sym.STATE];
-
-    if (!isDone) return;
-    try {
-      fn(
-        (value) => {
-          if (isDone) return;
-          this[Sym.STATE].done = true;
-          onFulfilled(value);
-        },
-        (reason) => {
-          if (isDone) return;
-          this[Sym.STATE].done = true;
-          onRejected(reason);
-        },
-      );
-    } catch (err) {
-      if (isDone) return;
-      this[Sym.STATE].done = true;
-      onRejected(err);
-    }
-  }
-
-  /**
-   * 扭转`Promise`状态状态到拒绝
-   * @private
-   * @param {Any|Promise} result
-   */
-  [Sym.RESOLVE](result) {
-    try {
-      const { [Sym.GET_THEN]: getThen } = Promise;
-      const then = getThen(result);
-      if (then) {
-        const {
-          [Sym.DO_RESOLVE]: doResolve,
-          [Sym.RESOLVE]: resolve,
-          [Sym.REJECT]: reject,
-        } = this;
-        doResolve(then.bind(result), resolve, reject);
-        return;
-      }
-      resolve.bind(this)(result);
-    } catch (err) {
-      const { [Sym.REJECT]: reject } = this;
-      reject.bind(this)(err);
-    }
-  }
 
 
   /**
@@ -351,7 +361,7 @@ class Promise {
     let serialization;
 
     if (state === State.PENDING) {
-      serialization = `Promise { <state>: "PENDING" }`;
+      serialization = 'Promise { <state>: "PENDING" }';
     }
 
     if (state === State.FULFILLED) {
