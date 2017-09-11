@@ -271,7 +271,7 @@ class Promise {
           then.bind(result)(
             fulfill,
             reject,
-          )
+          ),
         );
         return;
       }
@@ -314,30 +314,30 @@ class Promise {
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then
    */
   then(onFulfilled, onRejected) {
-      const { [Sym.DONE]: done } = this;
-      return done.bind(this)(
-        (result) => {
-          if (typeof onFulfilled === 'function') {
-            try {
-              return resolve(onFulfilled(result));
-            } catch (err) {
-              return reject(err);
-            }
-          } else {
-            return resolve(result);
-          }
-        },
-        (err) => {
-          if (typeof onRejected === 'function') {
-            try {
-              return resolve(onRejected(err));
-            } catch (error) {
-              return reject(error);
-            }
-          } else {
+    const { [Sym.DONE]: done } = this;
+    return done.bind(this)(
+      (result) => {
+        if (typeof onFulfilled === 'function') {
+          try {
+            return resolve(onFulfilled(result));
+          } catch (err) {
             return reject(err);
           }
-        },
+        } else {
+          return resolve(result);
+        }
+      },
+      (err) => {
+        if (typeof onRejected === 'function') {
+          try {
+            return resolve(onRejected(err));
+          } catch (error) {
+            return reject(error);
+          }
+        } else {
+          return reject(err);
+        }
+      },
     );
   }
 
