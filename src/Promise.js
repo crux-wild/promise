@@ -295,8 +295,6 @@ class Promise {
     this[Sym.STATE].handlers = null;
   }
 
-
-
   /**
    * 扭转`Promise`的状态到完成
    * @private
