@@ -27,7 +27,7 @@ class Handler {
  * `Promise`状态机状态枚举类
  * @private
  * @readonly
- * @enum {number}
+ * @enum {Number}
  */
 const State = Object.freeze({
   PENDING: 0,
@@ -39,7 +39,7 @@ const State = Object.freeze({
  * `Promise`状态机标志枚举类
  * @private
  * @readonly
- * @enum {number}
+ * @enum {Symbol}
  */
 const Sym = Object.freeze({
   STATE: Symbol('state'),
