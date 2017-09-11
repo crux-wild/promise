@@ -351,17 +351,17 @@ class Promise {
     let serialization;
 
     if (state === State.PENDING) {
-      serialization = `Promise { <state>: "${state}" }`;
+      serialization = `Promise { <state>: "PENDING" }`;
     }
 
     if (state === State.FULFILLED) {
       const { value } = this[Sym.STATE];
-      serialization = `Promise { <state>: "${state}", <value>: ${value} }`;
+      serialization = `Promise { <state>: "FULFILLED", <value>: ${value} }`;
     }
 
     if (state === State.REJECTED) {
       const { value: reason } = this[Sym.STATE];
-      serialization = `Promise { <state>: "${state}", <reason>: ${reason} }`;
+      serialization = `Promise { <state>: "REJECTED", <reason>: ${reason} }`;
     }
 
     return serialization;

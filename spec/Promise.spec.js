@@ -7,8 +7,7 @@ import Promise from 'Promise';
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise#Properties
  */
 test((it) => {
-  const promise = new Promise((resolve, reject) => {
-  });
+  const promise = new Promise((resolve, reject) => {});
 
   it.is(promise.length, 1, '[Properties] The promise length should equal to one;');
 });
